@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="نظام تسجيل الحضور والغياب الإلكتروني للمؤسسات التعليمية">
+    <meta name="keywords" content="حضور, غياب, نظام تعليمي, جدول دراسي">
+    <meta name="author" content="Pronx Team">
+    <title>نظام إدارة الدوام والحضور</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
+    <script>
+        // Handle routing before page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // If we're at the root, clear any hash
+            if (window.location.pathname === '/' && window.location.hash) {
+                window.location.hash = '';
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="app">
+        <!-- سيتم عرض المحتوى هنا ديناميكيًا -->
+        <!-- To access login page, add #login to the URL -->
+        <!-- Example: file:///path/to/index.html#login -->
+    </div>
+    <script src="db.js"></script>
+    <script src="seed.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
