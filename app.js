@@ -52,7 +52,7 @@ function renderLoginView() {
                 <button type="submit">دخول آمن</button>
                 <p id="login-error" class="error-message" style="display: none;"></p>
             </form>
-            <a href="#" onclick="window.location.hash=''; renderStudentView()">العودة إلى بوابة الطالب</a>
+            <a href="#" onclick="event.preventDefault(); window.location.hash=''; renderStudentView()">العودة إلى بوابة الطالب</a>
         </div>
     `;
 
@@ -99,6 +99,8 @@ function logout() {
         window.location.hash = '';
         renderStudentView();
     }
+    // Prevent default behavior if called from a link
+    event && event.preventDefault && event.preventDefault();
 }
 
 // --- ADMIN DASHBOARD ---
@@ -113,11 +115,11 @@ function renderAdminDashboard() {
                 <p>مرحباً، ${session.name}</p>
                 <nav>
                     <ul>
-                        <li><a href="#" onclick="renderAdminSection('stages')" id="nav-stages">إدارة المراحل</a></li>
-                        <li><a href="#" onclick="renderAdminSection('schedules')" id="nav-schedules">إدارة الجداول</a></li>
-                        <li><a href="#" onclick="renderAdminSection('students')" id="nav-students">إدارة الطلبة</a></li>
-                        <li><a href="#" onclick="renderAdminSection('instructors')" id="nav-instructors">إدارة التدريسيين</a></li>
-                        <li><a href="#" onclick="renderAdminSection('reports')" id="nav-reports">التقارير والإحصائيات</a></li>
+                        <li><a href="#" onclick="event.preventDefault(); renderAdminSection('stages')" id="nav-stages">إدارة المراحل</a></li>
+                        <li><a href="#" onclick="event.preventDefault(); renderAdminSection('schedules')" id="nav-schedules">إدارة الجداول</a></li>
+                        <li><a href="#" onclick="event.preventDefault(); renderAdminSection('students')" id="nav-students">إدارة الطلبة</a></li>
+                        <li><a href="#" onclick="event.preventDefault(); renderAdminSection('instructors')" id="nav-instructors">إدارة التدريسيين</a></li>
+                        <li><a href="#" onclick="event.preventDefault(); renderAdminSection('reports')" id="nav-reports">التقارير والإحصائيات</a></li>
                     </ul>
                 </nav>
                 <button onclick="logout()">تسجيل الخروج</button>
