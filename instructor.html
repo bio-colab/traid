@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="لوحة تحكم التدريسي - نظام تسجيل الحضور والغياب">
+    <title>لوحة تحكم التدريسي - نظام الحضور والغياب</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
+</head>
+<body>
+    <div id="app">
+        <!-- Instructor dashboard will be rendered here -->
+    </div>
+    <script src="db.js"></script>
+    <script src="seed.js"></script>
+    <script src="instructor.js"></script>
+    <script>
+        // Check if user is logged in and is instructor
+        document.addEventListener('DOMContentLoaded', function() {
+            const session = DB.getData('session');
+            if (!session || session.role !== 'instructor') {
+                // Redirect to login if not instructor
+                window.location.href = 'index.html#login';
+            } else {
+                // Render instructor dashboard
+                renderInstructorDashboard();
+            }
+        });
+        
+        // Simple SHA256 hashing function for password security (matching the one in seed.js)
+        function sha256(str) {
+            // Simple implementation - matches the one in seed.js for consistency
+            return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+        }
+        
+        // Instructor dashboard functions
+        function renderInstructorDashboard() {
+            const session = DB.getData('session');
+            const app = document.getElementById('app');
+            const allSchedules = DB.getData(DB_KEYS.SCHEDULES) || [];
+            const instructors = DB.getData(DB_KEYS.INSTRUCTORS) || [];
+            const stages = DB.getData(DB_KEYS.STAGES) || [];
+            const config = DB.getData(DB_KEYS.CONFIG);
+        
+            const instructorProfile = instructors.find(i => i.userId === session.userId);
+            if (!instructorProfile) {
+                app.innerHTML = `<p>Error: Instructor profile not found.</p><button onclick="logout()">Logout</button>`;
+                return;
+            }
+        
+            let instructorScheduleHtml = `
+                <div class="instructor-dashboard">
+                    <header>
+                        <div>
+                            <h1>لوحة تحكم التدريسي</h1>
+                            <p>مرحباً، ${session.name}</p>
+                        </div>
+                        <button onclick="logout()">تسجيل الخروج</button>
+                    </header>
+                    <main>
+                        <h2>جدولك الدراسي</h2>
+            `;
+        
+            config.workingDays.forEach(day => {
+                let dailyLectures = [];
+                allSchedules.forEach(schedule => {
+                    schedule.lectures.forEach(lecture => {
+                        if (lecture.instructorId === instructorProfile.id && schedule.day === day) {
+                            const stage = stages.find(s => s.id === schedule.stageId);
+                            dailyLectures.push({ ...lecture, stageName: stage ? stage.name : 'N/A', stageId: schedule.stageId, day: day });
+                        }
+                    });
+                });
+        
+                if (dailyLectures.length > 0) {
+                    instructorScheduleHtml += `<div class="day-schedule"><h3>${day}</h3>`;
+                    dailyLectures.forEach(lecture => {
+                        instructorScheduleHtml += `
+                            <div class="lecture-card-instructor">
+                                <h4>${lecture.subject} - ${lecture.stageName}</h4>
+                                <p><strong>الوقت:</strong> ${lecture.time}</p>
+                                <div class="lecture-actions">
+                                     <input type="text" id="next-topic-${lecture.stageId}-${lecture.subject}" placeholder="الموضوع القادم" value="${lecture.nextTopic || ''}">
+                                     <button onclick="updateNextTopic(${lecture.stageId}, '${lecture.day}', '${lecture.subject}')">حفظ الموضوع</button>
+                                     <button onclick="showAttendanceForm(${lecture.stageId}, '${lecture.day}', '${lecture.subject}')">تسجيل الحضور</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    instructorScheduleHtml += `</div>`;
+                }
+            });
+        
+            instructorScheduleHtml += `</main></div>`;
+            app.innerHTML = instructorScheduleHtml;
+        }
+        
+        function logout() {
+            if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
+                DB.removeData('session');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

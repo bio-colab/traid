@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="لوحة تحكم المدير - نظام تسجيل الحضور والغياب">
+    <title>لوحة تحكم المدير - نظام الحضور والغياب</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Admin dashboard will be rendered here -->
+    </div>
+    <script src="db.js"></script>
+    <script src="seed.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        // Check if user is logged in and is admin
+        document.addEventListener('DOMContentLoaded', function() {
+            const session = DB.getData('session');
+            if (!session || session.role !== 'admin') {
+                // Redirect to login if not admin
+                window.location.href = 'index.html#login';
+            } else {
+                // Render admin dashboard
+                renderAdminDashboard();
+            }
+        });
+        
+        // Simple SHA256 hashing function for password security (matching the one in seed.js)
+        function sha256(str) {
+            // Simple implementation - matches the one in seed.js for consistency
+            return str.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
+        }
+        
+        // Admin dashboard functions
+        function renderAdminDashboard() {
+            const session = DB.getData('session');
+            const app = document.getElementById('app');
+        
+            app.innerHTML = `
+                <div class="admin-dashboard">
+                    <aside class="sidebar">
+                        <h3>لوحة تحكم المدير</h3>
+                        <p>مرحباً، ${session.name}</p>
+                        <nav>
+                            <ul>
+                                <li><a href="#" onclick="event.preventDefault(); renderAdminSection('stages')" id="nav-stages">إدارة المراحل</a></li>
+                                <li><a href="#" onclick="event.preventDefault(); renderAdminSection('schedules')" id="nav-schedules">إدارة الجداول</a></li>
+                                <li><a href="#" onclick="event.preventDefault(); renderAdminSection('students')" id="nav-students">إدارة الطلبة</a></li>
+                                <li><a href="#" onclick="event.preventDefault(); renderAdminSection('instructors')" id="nav-instructors">إدارة التدريسيين</a></li>
+                                <li><a href="#" onclick="event.preventDefault(); renderAdminSection('reports')" id="nav-reports">التقارير والإحصائيات</a></li>
+                            </ul>
+                        </nav>
+                        <button onclick="logout()">تسجيل الخروج</button>
+                    </aside>
+                    <main id="admin-content">
+                        <h2>أهلاً بك في لوحة التحكم</h2>
+                        <p>اختر قسماً من القائمة الجانبية للبدء.</p>
+                    </main>
+                </div>
+            `;
+        
+            // Default view
+            renderAdminSection('stages');
+        }
+        
+        function renderAdminSection(section) {
+            // Update active navigation
+            document.querySelectorAll('.sidebar nav a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(`nav-${section}`).classList.add('active');
+            
+            const content = document.getElementById('admin-content');
+            switch (section) {
+                case 'stages':
+                    renderManageStages(content);
+                    break;
+                case 'schedules':
+                    renderManageSchedules(content);
+                    break;
+                case 'students':
+                    renderManageStudents(content);
+                    break;
+                case 'instructors':
+                    renderManageInstructors(content);
+                    break;
+                case 'reports':
+                    renderReportsSection(content);
+                    break;
+                // Add other cases later
+                default:
+                    content.innerHTML = '<h2>مرحباً</h2>';
+            }
+        }
+        
+        function logout() {
+            if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
+                DB.removeData('session');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>
